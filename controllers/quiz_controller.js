@@ -187,3 +187,86 @@ exports.check = function (req, res, next) {
         answer: answer
     });
 };
+// *************************************************************************************************
+// funcion a implementar que debe
+        // si respuesta bien -> nueva pregunta : random_play
+        // si mal -> juego termina : random_result
+        // si no hay mas preguntas mostrat pag q informe de ello : random_nomore
+
+    // utilizar req.session para guardar el estado del juego
+        // array con preguntas ya contestadas -> Para No repetir y saber nº prg acertadas
+
+// GET /quizzes/:quizId/randomplay
+exports.randomPlay = function(req,res,next){        
+        //var session =req.session; 
+    if (! req.session.unRandomPlay ){        
+        req.session.unRandomPlay = {
+            resueltos: [],
+            nAciertos: 0
+        };            
+    }
+    var usado = req.session.unRandomPlay.resueltos.length ? req.session.unRandomPlay.resueltos: [-1];
+    var whereOpt = {'id': {$notIn:usado}};
+
+    models.Quiz.count(whereOpt)            
+        // pregunta aleatoria  
+        .then(function (ncount){
+            var idQuiz = Math.floor(Math.random() * ncount);
+            var findOptions = {
+                //offset:idQuiz,   
+                'id' : {$gt: idQuiz},  // $gt quizzes greater than  idQuiz          
+                limit:1, // limite de elementos a coger
+                where: whereOpt
+            };
+            return models.Quiz.findAll(findOptions);
+        })           
+
+        // pregunta
+        .then(function(unQuiz){
+            var quiz = unQuiz[0];        
+            // NO MAS PREGUNTAS
+            if (!quiz) {                
+                req.session.unRandomPlay.resueltos = [];
+                var todoAcertado = req.session.unRandomPlay.nAciertos;
+                req.session.unRandomPlay.nAciertos = 0;
+                res.render('quizzes/random_nomore',{ 
+                    //score : req.session.unRandomPlay.nAciertos //nAciertos 
+                    score : todoAcertado
+                });
+                // reseteo el juego para volver a poder jugar
+                
+            } else {
+                //req.session.unRandomPlay.resueltos.push(unQuiz.id);
+                // no puede ir aqui porq si no aun con nAciertos=0 aparecerian todas las ? y ganarias
+                res.render('quizzes/random_play',{
+                    score: req.session.unRandomPlay.nAciertos,
+                    quiz: quiz
+                });
+            }
+        })
+
+        .catch (function (error) {
+            error.flash('error', 'El error encontrado es: ' + error.message);
+            next(error);
+        });
+
+};
+exports.randomCheck = function(req,res,next){
+    //var session = req.session;
+    var answer =req.query.answer || '';    
+    var result = answer.toLowerCase().trim() === req.quiz.answer.toLowerCase().trim();
+    if(!result){ // ha perdido         
+        req.session.unRandomPlay.resueltos = [];
+        req.session.unRandomPlay.nAciertos = 0;
+    }else {
+        req.session.unRandomPlay.nAciertos ++;
+        req.session.unRandomPlay.resueltos.push(req.quiz.id);
+    }
+    res.render('quizzes/random_result', {
+        //quiz : req.quiz,
+        score: req.session.unRandomPlay.nAciertos,        
+        result: result ,
+        answer: answer
+    });
+
+};

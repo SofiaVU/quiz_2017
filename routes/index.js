@@ -13,6 +13,11 @@ router.get('/author', function(req, res, next) {
     res.render('author');
 });
 
+// Pagina de Ayuda
+router.get('/Ayuda', function(req, res, next) {
+    res.render('Ayuda');
+});
+
 
 // Autoload de rutas que usen :quizId
 router.param('quizId', quizController.load);
@@ -29,6 +34,11 @@ router.delete('/quizzes/:quizId(\\d+)',    quizController.destroy);
 
 router.get('/quizzes/:quizId(\\d+)/play',  quizController.play);
 router.get('/quizzes/:quizId(\\d+)/check', quizController.check);
+
+// Añado pagina jugar 
+router.get('/quizzes/randomplay', quizController.randomPlay);
+// pagina para comprobar 
+router.get('/quizzes/randomcheck/:quizId(\\d+)', quizController.randomCheck)
 
 
 module.exports = router;
