@@ -212,8 +212,7 @@ exports.randomPlay = function(req,res,next){
         // pregunta aleatoria  
         .then(function (ncount){
             var idQuiz = Math.floor(Math.random() * ncount);
-            var findOptions = {
-                //offset:idQuiz,   
+            var findOptions = {                   
                 'id' : {$gt: idQuiz},  // $gt quizzes greater than  idQuiz          
                 limit:1, // limite de elementos a coger
                 where: whereOpt
@@ -232,8 +231,7 @@ exports.randomPlay = function(req,res,next){
                 res.render('quizzes/random_nomore',{ 
                     //score : req.session.unRandomPlay.nAciertos //nAciertos 
                     score : todoAcertado
-                });
-                // reseteo el juego para volver a poder jugar
+                });                
                 
             } else {
                 //req.session.unRandomPlay.resueltos.push(unQuiz.id);
@@ -263,7 +261,6 @@ exports.randomCheck = function(req,res,next){
         req.session.unRandomPlay.resueltos.push(req.quiz.id);
     }
     res.render('quizzes/random_result', {
-        //quiz : req.quiz,
         score: req.session.unRandomPlay.nAciertos,        
         result: result ,
         answer: answer
