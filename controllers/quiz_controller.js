@@ -287,6 +287,12 @@ exports.randomPlay = function(req,res,next){
 };
 exports.randomCheck = function(req,res,next){
     //var session = req.session;
+    if (! req.session.unRandomPlay ){        
+        req.session.unRandomPlay = {
+            resueltos: [],
+            nAciertos: 0
+        };            
+    }
     var answer =req.query.answer || '';    
     var result = answer.toLowerCase().trim() === req.quiz.answer.toLowerCase().trim();
     if(!result){ // ha perdido         
