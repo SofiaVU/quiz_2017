@@ -1,17 +1,29 @@
 
-
 <ul>
     <% for (var i in tips) { %>
         <% var tip = tips[i]; %>
+        
 
         <li>
 
             <% if (tip.accepted ||
                     (session.user && (session.user.isAdmin || (quizAuthorId && quizAuthorId === session.user.id)))) { %>
 
-                <%= tip.text %>
+                
 
             <% } %>
+            
+            <%= tip.text %>
+            <% if (tip.Author){ %>
+                <small>
+                    (by<span id="author"> <%= tip.Author.username %> </span>)
+                </small>
+            <% } else { %>
+                <small>
+                    by<span id="author"> <%= "Anónimo" %> </span>
+                </small>
+            <% } %>
+
 
             <% if (!tip.accepted &&
                     (session.user && (session.user.isAdmin || (quizAuthorId && quizAuthorId === session.user.id)))) { %>

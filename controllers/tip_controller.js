@@ -37,13 +37,16 @@ exports.new = function (req, res, next) {
 // POST /quizzes/:quizId/tips
 exports.create = function (req, res, next) {
 
+    var authorId = req.session.user && req.session.user.id || 0;
+
     var tip = models.Tip.build(
         {
             text: req.body.text,
-            QuizId: req.quiz.id
+            QuizId: req.quiz.id,
+            AuthorId: authorId
         });
 
-    tip.save()
+    tip.save()    
     .then(function (tip) {
         req.flash('success', 'Pista creado con éxito.');
 
@@ -95,4 +98,14 @@ exports.destroy = function (req, res, next) {
     .catch(function (error) {
         next(error);
     });
+};
+// permite acciones solo si el usuario es admin o el autor del tip
+exports.adminOrAuthorTipRequired = function(req, res, next){
+
+    if (req.session.user.isAdmin || (req.tip.AuthorId === req.session.user.id)) {
+        next();
+    } else {
+        console.log('Operación prohibida: El usuario logueado no es el autor del tip, ni un administrador.');
+        res.send(403);
+    }
 };
